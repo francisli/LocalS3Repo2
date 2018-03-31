@@ -91,7 +91,7 @@ class LocalS3File extends File {
 		wfDebug( __METHOD__ . " return: $path \n".print_r($this,true)."\n" );
 		return $path;
 	}
-	
+
 	/**
 	 * Create a LocalS3File from a title
 	 * Do not call this except from inside a repo class.
@@ -112,7 +112,7 @@ class LocalS3File extends File {
 		$file->loadFromRow( $row );
 		return $file;
 	}
-	
+
 	/**
 	 * Create a LocalS3File from a SHA-1 key
 	 * Do not call this except from inside a repo class.
@@ -132,7 +132,7 @@ class LocalS3File extends File {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Fields in the image table
 	 */
@@ -171,7 +171,7 @@ class LocalS3File extends File {
 	}
 
 	/**
-	 * Get the memcached key for the main data for this file, or false if 
+	 * Get the memcached key for the main data for this file, or false if
 	 * there is no access to the shared cache.
 	 */
 	function getCacheKey() {
@@ -344,16 +344,16 @@ class LocalS3File extends File {
 		if ( wfReadOnly() ) {
 			return;
 		}
-		if ( is_null( $this->media_type ) || $this->mime == 'image/svg') 
+		if ( is_null( $this->media_type ) || $this->mime == 'image/svg')
 		{
 
 			$this->upgradeRow();
 			$this->upgraded = true;
-		} 
-		else 
+		}
+		else
 		{
 			$handler = $this->getHandler();
-			if ( $handler && !$handler->isMetadataValid( $this, $this->metadata ) ) 
+			if ( $handler && !$handler->isMetadataValid( $this, $this->metadata ) )
 			{
 				$this->upgradeRow();
 				$this->upgraded = true;
@@ -416,9 +416,9 @@ class LocalS3File extends File {
 		$this->dataLoaded = true;
 		$fields = $this->getCacheFields( '' );
 		$fields[] = 'fileExists';
-		foreach ( $fields as $field ) 
+		foreach ( $fields as $field )
 		{
-			if ( isset( $info[$field] ) ) 
+			if ( isset( $info[$field] ) )
 			{
 				$this->$field = $info[$field];
 			}
@@ -615,7 +615,7 @@ class LocalS3File extends File {
 			$thumbPath = $this->getThumbPath( $thumbName );
 			$thumbUrl = $this->getThumbUrl( $thumbPath );
 			wfDebug( __METHOD__.": thumbName: $thumbName, thumbPath: $thumbPath\n  thumbUrl: $thumbUrl\n" );
-			
+
 			if ( $this->repo->canTransformVia404() && !($flags & self::RENDER_NOW ) ) {
 				$thumb = $this->handler->getTransform( $this, $thumbPath, $thumbUrl, $params );
 				break;
@@ -645,13 +645,13 @@ class LocalS3File extends File {
 			//This is where it request the file and put it in the thumbTempPath
 			$s3->getObject(
 						$this->repo->AWS_S3_BUCKET,
-						$fullPath, 
+						$fullPath,
 						$this->thumbTempPath
 					  );
 
 			if(!file_exists($this->thumbTempPath)){
 				$tmpImg = file_get_contents($this->getUrl());
-			
+
 				if(!empty($tmpImg) && !is_object($tmpImg)){
 					file_put_contents($this->thumbTempPath, $tmpImg);
 				}
@@ -682,7 +682,7 @@ class LocalS3File extends File {
 			$s3path = $thumbPath;
 
 			//This puts the file to the temp location
-			$info = $s3->putObjectFile($this->thumbTempPath, $this->repo->AWS_S3_BUCKET, $s3path, 
+			$info = $s3->putObjectFile($this->thumbTempPath, $this->repo->AWS_S3_BUCKET, $s3path,
 							($this->repo->AWS_S3_PUBLIC ? S3::ACL_PUBLIC_READ : S3::ACL_PRIVATE));
 
 
@@ -697,9 +697,9 @@ class LocalS3File extends File {
 					$thumb = $this->handler->getTransform( $this, $thumbPath, $thumbUrl, $params );
 				}
 			}
-			
-			// Purge. Useful in the event of Core -> Squid connection failure or squid 
-			// purge collisions from elsewhere during failure. Don't keep triggering for 
+
+			// Purge. Useful in the event of Core -> Squid connection failure or squid
+			// purge collisions from elsewhere during failure. Don't keep triggering for
 			// "thumbs" which have the main image URL though (bug 13776)
 			if ( $wgUseSquid && ( !$thumb || $thumb->isError() || $thumb->getUrl() != $this->getURL()) ) {
 				SquidUpdate::purge( array( $thumbUrl ) );
@@ -734,7 +734,7 @@ class LocalS3File extends File {
 
 		$s3->getObject(
 					$this->repo->AWS_S3_BUCKET,
-					$thumbPath, 
+					$thumbPath,
 					$this->thumbTempPath
 				  );
 
@@ -744,7 +744,7 @@ class LocalS3File extends File {
 		//This only can be activated once the sync is complete and the delete files have been deleted.
 		//This section searches for the thumbpath and if it does not exists
 		if(!file_exists($tmpThumbPath) || filesize($tmpThumbPath) == 0){
-			
+
 			//Get Path
 			//$s3ThumbPath = str_replace("https://".$wgAWS_S3_BUCKET.".s3.amazonaws.com/","",$thumbUrl);
 			//$temps3 = explode("?",$s3ThumbPath);
@@ -753,15 +753,15 @@ class LocalS3File extends File {
 			$s3FullPath = explode("/", str_replace("images/", "", $wgUploadDirectory)."".str_replace("mwstore://local-backend/local-thumb", "", $thumbPath));
 			unset( $s3FullPath[ count($s3FullPath)-1 ] );
 			$s3FullPath = implode("/", $s3FullPath);
-			
+
 			if($this->file_existsS3($s3ThumbPath)){
 
 				//$tmpThumbPath = $this->getS3Url($s3ThumbPath); //$thumbUrl;
-				//$thumbUrl = $this->getS3Url($s3ThumbPath); 
+				//$thumbUrl = $this->getS3Url($s3ThumbPath);
 
 			} else if($this->file_existsS3($s3FullPath)){
 				//$tmpThumbPath = $this->getS3Url($s3FullPath); //$thumbUrl;
-				//$thumbUrl = $this->getS3Url($s3FullPath); 
+				//$thumbUrl = $this->getS3Url($s3FullPath);
 
 			}
 
@@ -782,7 +782,7 @@ class LocalS3File extends File {
 		$thumb = $handler->doTransform( $image, $dstPath, 		$dstUrl, $params, $flags = 0);
 		*/
 		//echo $thumbUrl."<br>";
-		
+
 		$thumb = $handler->doTransform( $this , $tmpThumbPath, $thumbUrl, $transformParams );
 
 		/*ß
@@ -799,7 +799,7 @@ class LocalS3File extends File {
 
 		$statTiming = microtime( true ) - $starttime;
 		$stats->timing( 'media.thumbnail.generate.transform', 1000 * $statTiming );
-		
+
 		/*
 		Kelvin
 		*/
@@ -837,7 +837,7 @@ class LocalS3File extends File {
 
 		return $thumb;
 	}
-	
+
 	/** Get the URL of the thumbnail directory, or a particular file if $suffix is specified.
 	 *  $suffix is a path relative to the S3 bucket, and includes the upload directory
 	 */
@@ -848,13 +848,13 @@ class LocalS3File extends File {
 			$path = $this->repo->getUrlBase() . "/$suffix";
 
 		if(!$this->repo->AWS_S3_PUBLIC){
-			$this->url = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET, 
-				$suffix, 60*60*24*7, false, 
+			$this->url = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET,
+				$suffix, 60*60*24*7, false,
 				$this->repo->AWS_S3_SSL);
 		}
 
-		$path = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET, 
-				$suffix, 60*60*24*7, false, 
+		$path = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET,
+				$suffix, 60*60*24*7, false,
 				$this->repo->AWS_S3_SSL);
 
 		return $path;
@@ -878,11 +878,11 @@ class LocalS3File extends File {
 		global $s3;
 		if ( !isset( $this->tempPath ) ) {
 			$this->tempPath = tempnam(wfTempDir(), "s3file-");
-			
+
 			//This is not getting private files - kelvin
 			$info = $s3->getObject(
 									$this->repo->AWS_S3_BUCKET,
-									$this->repo->directory . '/'  . $this->getUrlRel(), 
+									$this->repo->directory . '/'  . $this->getUrlRel(),
 									$this->tempPath
 								  );
 
@@ -892,7 +892,7 @@ class LocalS3File extends File {
 		return $this->tempPath;
 	}
 
-	
+
 	/**
 	 * Fix thumbnail files from 1.4 or before, with extreme prejudice
 	 */
@@ -1035,7 +1035,7 @@ class LocalS3File extends File {
 		$opts['ORDER BY'] = "oi_timestamp $order";
 		$opts['USE INDEX'] = array( 'oldimage' => 'oi_name_timestamp' );
 
-		wfRunHooks( 'LocalS3File::getHistory', array( &$this, &$tables, &$fields, 
+		wfRunHooks( 'LocalS3File::getHistory', array( &$this, &$tables, &$fields,
 			&$conds, &$opts, &$join_conds ) );
 
 		$res = $dbr->select( $tables, $fields, $conds, __METHOD__, $opts, $join_conds );
@@ -1174,7 +1174,7 @@ class LocalS3File extends File {
 	{
 		if( is_null( $user ) ) {
 			global $wgUser;
-			$user = $wgUser; 
+			$user = $wgUser;
 		}
 
 		$dbw = $this->repo->getMasterDB();
@@ -1296,7 +1296,7 @@ class LocalS3File extends File {
 			$nullRevision = Revision::newNullRevision( $dbw, $descTitle->getArticleId(),
 				$log->getRcComment(), false );
 			$nullRevision->insertOn( $dbw );
-			
+
 			wfRunHooks( 'NewRevisionFromEditComplete', array( $article, $nullRevision, $latest, $user ) );
 			$article->updateRevisionOn( $dbw, $nullRevision );
 
@@ -1306,7 +1306,7 @@ class LocalS3File extends File {
 		} else {
 			// New file; create the description page.
 			// There's already a log entry, so don't make a second RC entry
-			$article->doEdit( $pageText, $comment, EDIT_NEW | EDIT_SUPPRESS_RC );
+			$article->doEditContent( $pageText, $comment, EDIT_NEW | EDIT_SUPPRESS_RC );
 		}
 
 		# Hooks, hooks, the magic of hooks...
@@ -1398,7 +1398,7 @@ class LocalS3File extends File {
 			// Purge the new image
 			$this->purgeEverything();
 		}
-		
+
 		return $status;
 	}
 
@@ -1416,10 +1416,10 @@ class LocalS3File extends File {
 	 */
 	function delete($reason, $suppress = false, $user = null) {
 		//$dbw = $this->repo->getMasterDB();
-		//$batch = new LocalS3FileDeleteBatch( $this, $reason, $suppress );		
+		//$batch = new LocalS3FileDeleteBatch( $this, $reason, $suppress );
 
 		//$this->lock();
-		$batch = new LocalS3FileDeleteBatch( $this, $reason, $suppress );		
+		$batch = new LocalS3FileDeleteBatch( $this, $reason, $suppress );
 		$batch->addCurrent();
 
 		# Get old version relative paths
@@ -1435,7 +1435,7 @@ class LocalS3File extends File {
 		*/
 
 		$status = $batch->execute();
-		
+
 
 		if ( $status->ok ) {
 			// Update site_stats
@@ -1602,7 +1602,7 @@ class LocalS3File extends File {
 	public function getUrl() {
 		global $s3;
 
-		if ( !isset( $this->url ) ) 
+		if ( !isset( $this->url ) )
 		{
 			if($this->repo->cloudFrontUrl)
 				$this->url  = $this->repo->cloudFrontUrl.$this->repo->directory."/".$this->getUrlRel();
@@ -1624,7 +1624,7 @@ class LocalS3File extends File {
 		$this->tempPath = tempnam(wfTempDir(), "s3file-");
 		$info = $s3->getObject(
 								$this->repo->AWS_S3_BUCKET,
-								$this->repo->directory . '/'  . $this->getUrlRel(), 
+								$this->repo->directory . '/'  . $this->getUrlRel(),
 								$this->tempPath
 							  );
 
@@ -1660,11 +1660,11 @@ class LocalS3File extends File {
 		//$this->file_existsS3();
 		$tmpThumbPath = $tmpFile->getPath();
 
-		
+
 		//This only can be activated once the sync is complete and the delete files have been deleted.
 		//This section searches for the thumbpath and if it does not exists
 		if(!file_exists($tmpThumbPath) || filesize($tmpThumbPath) == 0){
-			
+
 			//Get Path
 			//$s3ThumbPath = str_replace("https://".$wgAWS_S3_BUCKET.".s3.amazonaws.com/","",$thumbUrl);
 			//$temps3 = explode("?",$s3ThumbPath);
@@ -1673,15 +1673,15 @@ class LocalS3File extends File {
 			$s3FullPath = explode("/", str_replace("images/", "", $wgUploadDirectory)."".str_replace("mwstore://local-backend/local-thumb", "", $thumbPath));
 			unset( $s3FullPath[ count($s3FullPath)-1 ] );
 			$s3FullPath = implode("/", $s3FullPath);
-			
+
 			if($this->file_existsS3($s3ThumbPath)){
 
 				//$tmpThumbPath = $this->getS3Url($s3ThumbPath); //$thumbUrl;
-				//$thumbUrl = $this->getS3Url($s3ThumbPath); 
+				//$thumbUrl = $this->getS3Url($s3ThumbPath);
 
 			} else if($this->file_existsS3($s3FullPath)){
 				//$tmpThumbPath = $this->getS3Url($s3FullPath); //$thumbUrl;
-				//$thumbUrl = $this->getS3Url($s3FullPath); 
+				//$thumbUrl = $this->getS3Url($s3FullPath);
 
 			}
 
@@ -1697,12 +1697,12 @@ class LocalS3File extends File {
 
 		// Actually render the thumbnail...
 		//Add the s3 capability of getting the s3 url to generate new thumbnail if it didnt exists
-		
+
 		//$thumbUrl = "/opt/bitnami/apache2/htdocs/images/noaccess.png";
 		//$thumb = $handler->doTransform( $image, $dstPath, 		$dstUrl, $params, $flags = 0);
-		
+
 		//echo $thumbUrl."<br>";
-		
+
 
 		$thumb = $handler->doTransform( $this , $tmpThumbPath, $thumbUrl, $transformParams );
 
@@ -1710,16 +1710,16 @@ class LocalS3File extends File {
 
 		$statTiming = microtime( true ) - $starttime;
 		$stats->timing( 'media.thumbnail.generate.transform', 1000 * $statTiming );
-		
-		
+
+
 		//Kelvin
-		
+
 
 		if ( !$thumb ) { // bad params?
 			$thumb = false;
 
 		} elseif ( $thumb->isError() ) { // transform error
-			// @var $thumb MediaTransformError 
+			// @var $thumb MediaTransformError
 			$this->lastError = $thumb->toText();
 			// Ignore errors if requested
 			if ( $wgIgnoreImageErrors && !( $flags & self::RENDER_NOW ) ) {
@@ -2436,7 +2436,7 @@ class LocalS3FileMoveBatch {
 		$dbw = $this->db;
 
 		// Update current image
-		$dbw->update( 
+		$dbw->update(
 			'image',
 			array( 'img_name' => $this->newName ),
 			array( 'img_name' => $this->oldName ),
@@ -2468,7 +2468,7 @@ class LocalS3FileMoveBatch {
 
 	/**
 	 * Generate triplets for FSs3Repo::storeBatch().
-	 */ 
+	 */
 	function getMoveTriplets() {
 		$moves = array_merge( array( $this->cur ), $this->olds );
 		$triplets = array();	// The format is: (srcUrl, destZone, destUrl)
@@ -2483,7 +2483,7 @@ class LocalS3FileMoveBatch {
 
 	/**
 	 * Removes non-existent files from move batch.
-	 */ 
+	 */
 	function removeNonexistentFiles( $triplets ) {
 		$files = array();
 		foreach( $triplets as $file )
