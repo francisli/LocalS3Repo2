@@ -1306,7 +1306,7 @@ class LocalS3File extends File {
 		} else {
 			// New file; create the description page.
 			// There's already a log entry, so don't make a second RC entry
-			$article->doEditContent( $pageText, $comment, EDIT_NEW | EDIT_SUPPRESS_RC );
+			$article->doEditContent( new TextContent( $pageText ), $comment, EDIT_NEW | EDIT_SUPPRESS_RC );
 		}
 
 		# Hooks, hooks, the magic of hooks...
