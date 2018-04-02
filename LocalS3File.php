@@ -848,14 +848,10 @@ class LocalS3File extends File {
 			$path = $this->repo->getUrlBase() . "/$suffix";
 
 		if(!$this->repo->AWS_S3_PUBLIC){
-			$this->url = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET,
-				$suffix, 60*60*24*7, false,
-				$this->repo->AWS_S3_SSL);
+			$path = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET,
+					$suffix, 60*60*24*7, false,
+					$this->repo->AWS_S3_SSL);
 		}
-
-		$path = self::getAuthenticatedURL($this->repo->AWS_S3_BUCKET,
-				$suffix, 60*60*24*7, false,
-				$this->repo->AWS_S3_SSL);
 
 		return $path;
 	}
